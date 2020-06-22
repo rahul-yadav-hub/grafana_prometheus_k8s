@@ -1,0 +1,38 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: prometheus
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: prometheus
+        tier: frontend
+    spec:
+      containers:
+      - image: vimal13/prometheus
+        name: prometheus
+        ports:
+        - containerPort: 9090
+          name: prometheus
+        volumeMounts:
+        - name: prometheus-persistent-storage
+          mountPath: /prometheus
+        - name: config-persistent-storage
+          mountPath: /etc/prometheus
+      volumes:
+      - name: prometheus-persistent-storage
+        persistentVolumeClaim:
+          claimName: prometheus-pv-claim
+      - name: config-persistent-storage
+        configMap: 
+          name: prometheus-config-storage
